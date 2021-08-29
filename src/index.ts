@@ -21,7 +21,7 @@ class LightdDimmer implements AccessoryPlugin {
   private switchOn = false;
   private brightness = 0;
 
-  private readonly switchService: Service;
+  private readonly lightService: Service;
   private readonly informationService: Service;
 
   constructor(log: Logging, config: AccessoryConfig, api: API) {
@@ -30,13 +30,13 @@ class LightdDimmer implements AccessoryPlugin {
     this.url = config.url;
     this.device = config.device;
 
-    this.switchService = new hap.Service.Switch(this.name);
+    this.lightService = new hap.Service.Lightbulb(this.name);
 
-    this.switchService.getCharacteristic(hap.Characteristic.On)
+    this.lightService.getCharacteristic(hap.Characteristic.On)
       .onGet(this.getOnHandler.bind(this))
       .onSet(this.setOnHandler.bind(this));
 
-    this.switchService.getCharacteristic(hap.Characteristic.Brightness)
+    this.lightService.getCharacteristic(hap.Characteristic.Brightness)
       .onGet(this.getBrightnessHandler.bind(this))
       .onSet(this.setBrightnessHandler.bind(this));
 
@@ -62,7 +62,7 @@ class LightdDimmer implements AccessoryPlugin {
   getServices(): Service[] {
     return [
       this.informationService,
-      this.switchService,
+      this.lightService,
     ];
   }
 
