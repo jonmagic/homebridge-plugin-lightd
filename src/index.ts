@@ -5,6 +5,7 @@ import {
   Logging,
   Service
 } from "homebridge";
+const axios = require('axios').default;
 
 let hap: HAP;
 
@@ -73,6 +74,9 @@ class LightdDimmer implements AccessoryPlugin {
 
   async setOnHandler(value: CharacteristicValue) {
     this.switchOn = value as boolean;
+
+    axios.get(this.url + "/" + this.device + "/toggle_power");
+
     this.log.info("Lights were changed to: " + this.switchOn);
   }
 
@@ -83,6 +87,19 @@ class LightdDimmer implements AccessoryPlugin {
 
   async setBrightnessHandler(value: CharacteristicValue) {
     this.brightness = value as number;
+
+    if (value < 26) {
+      axios.get(this.url + "/" + this.device + "/minimum_brightness");
+    } else if (value < 51) {
+      axios.get(this.url + "/" + this.device + "/25_brightness");
+    } else if (value < 76) {
+      axios.get(this.url + "/" + this.device + "/50_brightness");
+    } else if (value < 100) {
+      axios.get(this.url + "/" + this.device + "/75_brightness");
+    } else if (value === 100) {
+      axios.get(this.url + "/" + this.device + "/100_brightness");
+    }
+
     this.log.info("Light brightness was changed to: " + this.brightness + "%");
   }
 }
