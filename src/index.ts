@@ -1,12 +1,7 @@
 import {
   AccessoryConfig,
   AccessoryPlugin,
-  API,
-  CharacteristicEventTypes,
-  CharacteristicGetCallback,
-  CharacteristicSetCallback,
-  CharacteristicValue,
-  HAP,
+  API, CharacteristicValue, HAP,
   Logging,
   Service
 } from "homebridge";
@@ -36,16 +31,14 @@ class LightdDimmer implements AccessoryPlugin {
     this.device = config.device;
 
     this.switchService = new hap.Service.Switch(this.name);
+
     this.switchService.getCharacteristic(hap.Characteristic.On)
-      .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
-        log.info("Current state of the switch was returned: " + (this.switchOn? "ON": "OFF"));
-        callback(undefined, this.switchOn);
-      })
-      .on(CharacteristicEventTypes.SET, (value: CharacteristicValue, callback: CharacteristicSetCallback) => {
-        this.switchOn = value as boolean;
-        log.info("Switch state was set to: " + (this.switchOn? "ON": "OFF"));
-        callback();
-      });
+      .onGet(this.getOnHandler.bind(this))
+      .onSet(this.setOnHandler.bind(this));
+
+    this.switchService.getCharacteristic(hap.Characteristic.Brightness)
+      .onGet(this.getBrightnessHandler.bind(this))
+      .onSet(this.setBrightnessHandler.bind(this));
 
     this.informationService = new hap.Service.AccessoryInformation()
       .setCharacteristic(hap.Characteristic.Manufacturer, "Jonathan Hoyt")
@@ -74,20 +67,22 @@ class LightdDimmer implements AccessoryPlugin {
   }
 
   async getOnHandler() {
-    this.log.info("Lights are: " + (this.switchOn ? "ON" : "OFF"));
+    this.log.info("Lights are: " + this.switchOn);
+    return this.switchOn;
   }
 
-  async setOnHandler(value: boolean) {
+  async setOnHandler(value: CharacteristicValue) {
     this.switchOn = value as boolean;
-    this.log.info("Lights were changed to: " + (this.switchOn ? "ON" : "OFF"));
+    this.log.info("Lights were changed to: " + this.switchOn);
   }
 
   async getBrightnessHandler() {
     this.log.info("Light brightness is: " + this.brightness + "%");
+    return this.brightness;
   }
 
-  async setBrightnessHandler(value: number) {
-    this.brightness = value;
+  async setBrightnessHandler(value: CharacteristicValue) {
+    this.brightness = value as number;
     this.log.info("Light brightness was changed to: " + this.brightness + "%");
   }
 }
