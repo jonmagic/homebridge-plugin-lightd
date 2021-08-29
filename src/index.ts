@@ -77,6 +77,10 @@ class LightdDimmer implements AccessoryPlugin {
       this.switchOn = value as boolean;
       axios.get(this.url + "/" + this.device + "/toggle_power");
       this.log.info("Lights were changed " + this.switchOn ? "on" : "off");
+
+      if (this.switchOn) {
+        this.setBrightnessHandler(this.brightness);
+      }
     } else {
       this.log.info("Lights are already " + this.switchOn ? "on" : "off")
     }
