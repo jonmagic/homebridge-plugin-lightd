@@ -68,7 +68,11 @@ class LightdDimmer implements AccessoryPlugin {
   }
 
   async getOnHandler() {
-    this.log.info("Lights are: " + this.switchOn);
+    if (this.switchOn) {
+      this.log.info("Lights are on and at " + this.brightness + "% brightness");
+    } else {
+      this.log.info("Lights are off");
+    }
     return this.switchOn;
   }
 
@@ -88,7 +92,7 @@ class LightdDimmer implements AccessoryPlugin {
   }
 
   async getBrightnessHandler() {
-    this.log.info("Light brightness is: " + this.brightness + "%");
+    this.log.info("Light are at " + this.brightness + "% brightness");
     return this.brightness;
   }
 
@@ -114,6 +118,6 @@ class LightdDimmer implements AccessoryPlugin {
       axios.get(this.url + "/" + this.device + "/100_brightness");
     }
 
-    this.log.info("Light brightness was changed to " + this.brightness + "%");
+    this.log.info("Light was changed to " + this.brightness + "% brightness");
   }
 }
