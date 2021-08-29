@@ -73,11 +73,14 @@ class LightdDimmer implements AccessoryPlugin {
   }
 
   async setOnHandler(value: CharacteristicValue) {
-    this.switchOn = value as boolean;
+    if (this.switchOn !== value) {
+      this.switchOn = value as boolean;
+      axios.get(this.url + "/" + this.device + "/toggle_power");
+      this.log.info("Lights were changed " + this.switchOn ? "on" : "off");
+    } else {
+      this.log.info("Lights are already " + this.switchOn ? "on" : "off")
+    }
 
-    axios.get(this.url + "/" + this.device + "/toggle_power");
-
-    this.log.info("Lights were changed to: " + this.switchOn);
   }
 
   async getBrightnessHandler() {
@@ -88,11 +91,18 @@ class LightdDimmer implements AccessoryPlugin {
   async setBrightnessHandler(value: CharacteristicValue) {
     this.brightness = value as number;
 
-    if (value < 26) {
+    if (value > 0 && !this.switchOn) {
+      this.setOnHandler(true);
+    } else if (value === 0 && this.switchOn) {
+      this.setOnHandler(false);
+      return;
+    }
+
+    if (value < 25) {
       axios.get(this.url + "/" + this.device + "/minimum_brightness");
-    } else if (value < 51) {
+    } else if (value < 50) {
       axios.get(this.url + "/" + this.device + "/25_brightness");
-    } else if (value < 76) {
+    } else if (value < 75) {
       axios.get(this.url + "/" + this.device + "/50_brightness");
     } else if (value < 100) {
       axios.get(this.url + "/" + this.device + "/75_brightness");
@@ -100,6 +110,6 @@ class LightdDimmer implements AccessoryPlugin {
       axios.get(this.url + "/" + this.device + "/100_brightness");
     }
 
-    this.log.info("Light brightness was changed to: " + this.brightness + "%");
+    this.log.info("Light brightness was changed to " + this.brightness + "%");
   }
 }
