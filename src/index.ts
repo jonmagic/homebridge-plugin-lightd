@@ -20,7 +20,7 @@ class LightdDimmer implements AccessoryPlugin {
   private readonly url: string;
   private readonly device: string;
   private switchOn = false;
-  private brightness = 0;
+  private brightness = 100;
 
   private readonly lightService: Service;
   private readonly informationService: Service;
